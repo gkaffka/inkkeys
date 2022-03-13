@@ -214,68 +214,62 @@ class ModeFallback:
         device.assignKey(KeyCode.SW3_PRESS, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_PREV, ActionCode.PRESS)])
         device.assignKey(KeyCode.SW3_RELEASE, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_PREV, ActionCode.RELEASE)])
 
+        device.sendIconFor(4, "icons/volume-mute.png", centered=(not self.demoActive))
+        device.assignKey(KeyCode.SW4_PRESS, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_VOL_MUTE, ActionCode.PRESS)])
+        device.assignKey(KeyCode.SW4_RELEASE, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_VOL_MUTE, ActionCode.RELEASE)])
+
         device.sendIconFor(6, "icons/stop.png", centered=(not self.demoActive))
         device.assignKey(KeyCode.SW6_PRESS, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_STOP, ActionCode.PRESS)])
         device.assignKey(KeyCode.SW6_RELEASE, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_STOP, ActionCode.RELEASE)])
         device.sendIconFor(7, "icons/skip-end.png", centered=(not self.demoActive))
         device.assignKey(KeyCode.SW7_PRESS, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_NEXT, ActionCode.PRESS)])
         device.assignKey(KeyCode.SW7_RELEASE, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_NEXT, ActionCode.RELEASE)])
+    
 
+        ### Buttons 5, 8 and 9 are shortcuts to applications ###
+        # Open spotify
+        device.sendIconFor(8, "icons/music-player.png", centered=(not self.demoActive))
+        device.assignKey(KeyCode.SW8_PRESS, [
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_LEFT_WINDOWS, ActionCode.PRESS),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_SPACE, ActionCode.PRESS), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_LEFT_WINDOWS, ActionCode.RELEASE),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_SPACE, ActionCode.RELEASE)])
+        device.assignKey(KeyCode.SW8_RELEASE, [
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_S), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_P), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_O), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_ENTER, ActionCode.PRESS),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_ENTER, ActionCode.RELEASE)])
 
+        # Open Android Studio
+        device.sendIconFor(5, "icons/android_studio.png", centered=(not self.demoActive))
+        device.assignKey(KeyCode.SW5_PRESS, [
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_LEFT_WINDOWS, ActionCode.PRESS),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_SPACE, ActionCode.PRESS), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_LEFT_WINDOWS, ActionCode.RELEASE),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_SPACE, ActionCode.RELEASE)])
+        device.assignKey(KeyCode.SW5_RELEASE, [
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_A), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_N), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_D), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_ENTER, ActionCode.PRESS),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_ENTER, ActionCode.RELEASE)])
+        
+        # Open chrome
+        device.sendIconFor(9, "icons/chrome.png", centered=(not self.demoActive))
+        device.assignKey(KeyCode.SW9_PRESS, [
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_LEFT_WINDOWS, ActionCode.PRESS),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_SPACE, ActionCode.PRESS), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_LEFT_WINDOWS, ActionCode.RELEASE),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_SPACE, ActionCode.RELEASE)])
+        device.assignKey(KeyCode.SW9_RELEASE, [
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_C),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_H), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_R), 
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_ENTER, ActionCode.PRESS),
+        event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_ENTER, ActionCode.RELEASE)])
+        
 
-        ### Buttons 5 and 9 are shortcuts to applications ###
-
-        device.sendIconFor(5, "icons/envelope.png", centered=(not self.demoActive))
-        device.assignKey(KeyCode.SW5_PRESS, [event(DeviceCode.CONSUMER, ConsumerKeycode.CONSUMER_EMAIL_READER, ActionCode.PRESS)])
-        device.assignKey(KeyCode.SW5_RELEASE, [event(DeviceCode.CONSUMER, ConsumerKeycode.CONSUMER_EMAIL_READER, ActionCode.RELEASE)])
-        device.sendIconFor(9, "icons/calculator.png", centered=(not self.demoActive))
-        device.assignKey(KeyCode.SW9_PRESS, [event(DeviceCode.CONSUMER, ConsumerKeycode.CONSUMER_CALCULATOR, ActionCode.PRESS)])
-        device.assignKey(KeyCode.SW9_RELEASE, [event(DeviceCode.CONSUMER, ConsumerKeycode.CONSUMER_CALCULATOR, ActionCode.RELEASE)])
-
-
-
-        ### Button 4 controls the light in my office and displays its state ###
-
-        def toggleLight():
-            target = not self.lightState
-            self.mqtt.setLight(target)
-            self.lightState = target
-            self.showLightState(device)
-
-        self.lightState = self.mqtt.getLight
-        self.showLightState(device, False)
-
-        device.assignKey(KeyCode.SW4_PRESS, [])
-        device.assignKey(KeyCode.SW4_RELEASE, [])
-        device.registerCallback(toggleLight, KeyCode.SW4_PRESS)
-
-
-        ### Button 8 set display and LEDs to a demo state (only used for videos and pictures of the thing)
-        def toggleDemo():
-            if self.demoActive:
-                self.demoActive = False
-                img = Image.new("1", (device.dispW, device.dispH), color=1)
-                device.sendImage(0, 0, img)
-                self.activate(device) #Recreate the screen content after the demo
-            else:
-                self.demoActive = True
-                self.activate(device) #Recreate the screen because with demo active, the buttons will align differently to give room for "there.oughta.be"
-                text = "there.oughta.be/a/macro-keyboard"
-                font = ImageFont.truetype("arial.ttf", 17)
-                w, h = font.getsize(text);
-                x = (device.dispW-h)//2
-                x8 = floor(x / 8) * 8 #needs to be a multiple of 8
-                h8 = ceil((h + x - x8) / 8) * 8 #needs to be a multiple of 8
-                img = Image.new("1", (w, h8), color=1)
-                d = ImageDraw.Draw(img)
-                d.text((0, x-x8), text, font=font, fill=0)
-                device.sendImage(x8, (device.dispH-w)//2, img.transpose(Image.ROTATE_90))
-                device.updateDisplay(True)
-
-        device.registerCallback(toggleDemo, KeyCode.SW8_PRESS)
-        device.sendIconFor(8, "icons/emoji-sunglasses.png", centered=(not self.demoActive))
-        device.assignKey(KeyCode.SW8_PRESS, [])
-        device.assignKey(KeyCode.SW8_RELEASE, [])
 
         ### The jog wheel can be pressed to switch between three functions: Volume control, mouse wheel, arrow keys left/right ###
 
@@ -294,27 +288,27 @@ class ModeFallback:
         self.jogFunction = ""
 
         def toggleJogFunction(update=True):
-            if self.jogFunction == "wheel":
+            if self.jogFunction == "arrow":
                 device.clearCallback(KeyCode.JOG)
                 device.sendTextFor(1, "Arrow Keys")
                 device.assignKey(KeyCode.JOG_CW, [event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_RIGHT)])
                 device.assignKey(KeyCode.JOG_CCW, [event(DeviceCode.KEYBOARD, KeyboardKeycode.KEY_LEFT)])
-                self.jogFunction = "arrow"
-                if update:
-                    device.updateDisplay()
-            elif self.jogFunction == "arrow":
-                device.sendTextFor(1, "Volume")
-                device.registerCallback(showVolume, KeyCode.JOG)
-                device.assignKey(KeyCode.JOG_CW, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_VOL_UP)])
-                device.assignKey(KeyCode.JOG_CCW, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_VOL_DOWN)])
                 self.jogFunction = "volume"
                 if update:
                     device.updateDisplay()
-            else:
+            elif self.jogFunction == "wheel":
                 device.clearCallback(KeyCode.JOG)
                 device.sendTextFor(1, "Mouse Wheel")
                 device.assignKey(KeyCode.JOG_CW, [event(DeviceCode.MOUSE, MouseAxisCode.MOUSE_WHEEL, 1)])
                 device.assignKey(KeyCode.JOG_CCW, [event(DeviceCode.MOUSE, MouseAxisCode.MOUSE_WHEEL, -1)])
+                self.jogFunction = "arrow"
+                if update:
+                    device.updateDisplay()
+            else:
+                device.sendTextFor(1, "Volume")
+                device.registerCallback(showVolume, KeyCode.JOG)
+                device.assignKey(KeyCode.JOG_CW, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_VOL_UP)])
+                device.assignKey(KeyCode.JOG_CCW, [event(DeviceCode.CONSUMER, ConsumerKeycode.MEDIA_VOL_DOWN)])
                 self.jogFunction = "wheel"
                 if update:
                     device.updateDisplay()
